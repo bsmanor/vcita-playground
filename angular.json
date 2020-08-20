@@ -123,5 +123,8 @@
       }
     }
   },
-  "defaultProject": "vcita-playground-angular"
+  "defaultProject": "vcita-playground-angular",
+  "cli": {
+    "analytics": false
+  }
 }

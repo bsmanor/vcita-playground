@@ -1,17 +1,37 @@
 <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" style="height: 100%;">
-  <section fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="20px">
-    <button mat-raised-button color="primary" (click)="getServices()">Get Services</button>
-    <button mat-raised-button color="primary" (click)="getClients()">Get Clients</button>
-    <a [href]=OAuthUrl><button mat-raised-button color="primary">Allow Access To vcita</button></a>
+  <section fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
+    <div><button mat-raised-button color="primary" (click)="getServices()">Get Services</button></div>
+    <div><button mat-raised-button color="primary" (click)="getConversations(clientsPage)">Get Conversations</button> <button (click)="getConversations(clientsPage - 1)">back</button> Page: {{clientsPage}} <button (click)="getConversations(clientsPage + 1)">next</button></div>
+    <div><button mat-raised-button color="primary" (click)="getClients(clientsPage)">Get Clients</button> <button (click)="getClients(clientsPage - 1)">back</button> Page: {{clientsPage}} <button (click)="getClients(clientsPage + 1)">next</button></div>
+    <div><a [href]=OAuthUrl><button mat-raised-button color="primary">Allow Access To vcita</button></a></div>
   </section>
 
-  <section fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
-    <div *ngFor="let service of (services$ | async)?.data.services">
-      <ul>
-        <li>{{service.name}} | ID: {{service.id}}</li>
-      </ul>
-    </div>
-  </section>
+  <div>
+    <!-- Services -->
+    <section fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
+      <div *ngFor="let service of (services$ | async)?.data.services">
+        <ul>
+          <li>{{service.name}} | ID: {{service.id}}</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Clients -->
+    <section fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
+      <div *ngFor="let client of (clients$ | async)?.data.clients" fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="15px grid">
+        <mat-card>
+          <mat-card-content>
+            <div>{{client.id}}  -  {{client.first_name}} {{client.last_name}}</div>
+            <button mat-raised-button color="accent" (click)="getClientConversations(client.id)">GET CONVERSATION</button>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+
+
+  </div>
+
 
 
 </div>

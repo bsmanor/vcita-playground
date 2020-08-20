@@ -37,19 +37,19 @@ export const vcitaClientCreatedWebhook = functions.https.onRequest((request, res
   
 export const getAuthCode = functions.https.onRequest((request, response) => {
 
-  const config = {
-    method: 'GET',
-    url: 'http://app.vcita.com/app/oauth/authorize',
-    params: {
-      client_id: process.env.CLIENT_ID,
-      redirect_uri: 'https://us-central1-vcita-playground.cloudfunctions.net/authorize',
-      state: 'TEST'
-    }
-  }
+  // const config = {
+  //   method: 'GET',
+  //   url: 'http://app.vcita.com/app/oauth/authorize',
+  //   params: {
+  //     client_id: process.env.CLIENT_ID,
+  //     redirect_uri: 'https://us-central1-vcita-playground.cloudfunctions.net/authorize',
+  //     state: 'TEST'
+  //   }
+  // }
 
   function test() {
     return new Promise((resolve, reject) => {
-      axios(config)
+      axios('https://jsonplaceholder.typicode.com/todos/1')
       .then((res: any) => {
         resolve(res)   
       })

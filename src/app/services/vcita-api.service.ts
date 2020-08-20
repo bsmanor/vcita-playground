@@ -26,11 +26,26 @@ export class VcitaApiService {
     return this.http.get(`${this.domain}/platform/v1/services`, config);
   }
 
-  getClients() {
+  getClients(page) {
     let config = {
       headers: this.headers
     }
-    return this.http.get(`${this.domain}/platform/v1/clients`, config);
+    return this.http.get(`${this.domain}/platform/v1/clients?page=${page}&per_page=2`, config);
+  }
+
+  getConversations(page) {
+    let config = {
+      headers: this.headers
+    }
+    // return this.http.get(`${this.domain}/platform/v1/conversations`, config);
+    return this.http.get(`${this.domain}/platform/v1/conversations?page=${page}`, config);
+  }
+
+  getClientConversations(clientId) {
+    let config = {
+      headers: this.headers
+    }
+    return this.http.get(`${this.domain}/platform/v1/clients/${clientId}/conversations`, config);
   }
 
   getServiceAvailabilityByID(serviceId) {
