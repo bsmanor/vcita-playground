@@ -1,0 +1,14 @@
+#vcita-sync-button {
+    position: absolute;
+    right: 0px;
+    bottom: 30px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+#about-info {
+    width: inherit;
+    padding: 20px;
+    border-radius: 30px;
+    text-align: justify;
+}

@@ -1,0 +1,12 @@
+<mat-card id="clients-container">
+    <mat-card-header>
+        <mat-card-title>My Clients</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="5px">
+        <div *ngFor="let client of clients$ | async">
+            <div>{{client.first_name}} {{client.last_name}}</div>
+            <mat-divider style="height:1px;"></mat-divider>
+        </div>  
+    </mat-card-content>
+</mat-card>

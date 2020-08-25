@@ -1,0 +1,46 @@
+<div id="about-info" class="border-primary">
+    <h2>This is a demo app that simulates how vcita users can grant the app developer access to their vcita account, using OAuth.</h2>
+    <h3>Access will be limited to only these endpoints accepting the OAuth token:</h3>
+    <!-- <div fxLayout="row wrap" fxLayoutAlign="start" fxLayoutGap="13px">
+        <div>Read Payments items</div>
+        <div>Record new Payments</div>
+        <div>Read Booking items</div>
+        <div>Create new Bookings in your account</div>
+        <div>Read clients items</div>
+        <div>Add and edit clients</div>
+        <div>Send Marketing campaigns on your behalf</div>
+    </div> -->
+
+    <h3>
+        The current app will simulate a scenario where vcita users using the app can grant the developer access to generate an OAuth token, 
+        in order to sync clients from their vcita account into the current app, so each time a new client is created on vcita, 
+        vcita will send a notification to the app's dedicated endpoint with the new client's information, so that new client can be added to the list of clients on the the local app as well.
+    </h3>
+
+
+    
+    
+    
+    <a [href]=OAuthUrl target="_blank">
+        <button mat-flat-button color="accent" id="vcita-sync-button">Sync clients from vcita</button>
+    </a>
+</div>
+
+<div>
+    <mat-form-field appearance="outline">
+        <input #email matInput placeholder="email">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline">
+        <input #password matInput placeholder="password">
+    </mat-form-field>
+    
+    <button mat-raised-button color="accent" (click)="createUser(email.value, password.value)">Sign up</button>
+</div>
+
+
+
+
+<div style="width: 300px; height: 500px;">
+    <app-clients [clients$]="clients$"></app-clients>
+</div>

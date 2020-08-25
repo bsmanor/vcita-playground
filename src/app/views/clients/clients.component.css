@@ -1,0 +1,7 @@
+#clients-container {
+    height: inherit;
+    width: inherit;
+    overflow-y: auto;
+    padding: 14px;
+    
+}

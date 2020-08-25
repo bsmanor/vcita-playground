@@ -23,7 +23,9 @@
     "@angular/platform-browser": "~10.0.6",
     "@angular/platform-browser-dynamic": "~10.0.6",
     "@angular/router": "~10.0.6",
-    "firebase": "^7.18.0",
+    "@google-cloud/firestore": "4.2.0",
+    "angularfire2": "^5.4.2",
+    "firebase": "^7.19.0",
     "https": "^1.0.0",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
@@ -47,6 +49,12 @@
     "protractor": "~7.0.0",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
-    "typescript": "~3.9.5"
+    "typescript": "~3.9.5",
+    "@angular-devkit/architect": ">= 0.900 < 0.1100",
+    "firebase-tools": "^8.0.0",
+    "fuzzy": "^0.1.3",
+    "inquirer": "^6.2.2",
+    "inquirer-autocomplete-prompt": "^1.0.1",
+    "open": "^7.0.3"
   }
 }

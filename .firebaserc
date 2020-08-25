@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "vcita-playground"
+  },
+  "targets": {
+    "vcita-playground": {
+      "hosting": {
+        "vcita-playground-angular": [
+          "vcita-playground"
+        ]
+      }
+    }
   }
 }
