@@ -1,16 +1,20 @@
 import { VcitaTokenExchange, GetUserByToken } from './classses';
 import * as functions from 'firebase-functions';
+import * as firestore from './firestore';
+import * as vcita from './services/vcita-service';
 require('dotenv').config();
 // const https = require('https');
 // import * as express from 'express';
 // const app = express();
-const axios = require('axios').default;
+import * as Axios from 'axios';
+const axios = Axios.default;
+type AxiosRequestConfig = Axios.AxiosRequestConfig;
 
 // Firebase Cloud Firestore
-const admin = require('firebase-admin');
-admin.initializeApp({
-  credential: admin.credential.applicationDefault()
-});
+import * as admin from 'firebase-admin';
+// admin.initializeApp({
+//   credential: admin.credential.applicationDefault()
+// });
 const db = admin.firestore();
 
 // const cors = require('cors')({ origin: true });
@@ -24,7 +28,7 @@ const db = admin.firestore();
 
 export const getAuthCode = functions.https.onRequest(async (request, response) => {
   
-  const config = {
+  const config: AxiosRequestConfig = {
     method: 'GET',
     url: 'http://app.vcita.com/app/oauth/authorize',
     params: {
@@ -38,36 +42,68 @@ export const getAuthCode = functions.https.onRequest(async (request, response) =
   response.send(myRes.data)
 });
 
+
 // This endpoint receives a temporary code from vcita and will later exchange it with a token that can be later used for identifying users.
 export const authorize = functions.https.onRequest( async (request, response) => {
   const code = request.query.code;
-
-  try {
-    // Constructing the request params for the exchange-token request
-    const exchangedTokenConfig = new VcitaTokenExchange(code);
-    const accessToken = await axios(exchangedTokenConfig);
+  const uid = request.query.state?.toString();
+  functions.logger.info({uid: uid}, {structuredData: true});
+  
+  if (uid) {
     
-    // Constructing the request params for getting the user associated with a given token
-    const getUserByTokenConfig = new GetUserByToken(accessToken.data.access_token);
-    const vuser = await axios(getUserByTokenConfig);
+    try {
+      functions.logger.info('trying...', {structuredData: true});
+      // Constructing the request params for the exchange-token request
+      const exchangedTokenConfig = new VcitaTokenExchange(code);
+      const accessToken = await axios(exchangedTokenConfig.config);
+      const token = accessToken.data.access_token;
+      functions.logger.info({token: token}, {structuredData: true});
+      
+      // Constructing the request params for getting the user associated with a given token
+      const getUserByTokenConfig = new GetUserByToken(token);
+      const vuser = await axios(getUserByTokenConfig.config);
 
-    const dbRes = await db.collection('users').doc(vuser.data.business_id).set({
-      id: vuser.data.business_id,
-      token: accessToken.data,
-      user: vuser.data
-    });
-    functions.logger.info({dbres:dbRes}, {structuredData: true});
-    response.redirect(`https://vcita-playground.web.app`)
+      // Add vcita user info to the user's account on firestore
+      await db.collection('users').doc(uid).set({
+        uid: uid,
+        vcita_business_id: vuser.data.business_id,
+        vcita_token: token,
+        vcita_user: vuser.data
+      });
 
-    // response.json({
-    //   code: code,
-    //   token: accessToken.data,
-    //   user: vuser.data.business_id
-    // })
-  } catch (err) {
-    functions.logger.info({loggedError: err}, {structuredData: true});
-    response.json(err)
-  } 
+      try {
+        
+        // subscribe to client/created vcita webhook
+        const isSubscribed = await vcita.subscribeToVcitaWebhook(token, 'client/created');
+        functions.logger.info({subscribed:isSubscribed.data}, {structuredData: true});
+        
+        // Importing clients from vcita
+        const clientsRes = await vcita.importClients(token);
+        const clients = clientsRes.data.data.clients;
+        functions.logger.info({clients:clients}, {structuredData: true});
+        
+        // Push clients to firestore
+        firestore.createClients(uid, clients)
+        .then( (values) => {          
+          // Redirect the user to the app's home page
+          response.redirect(`https://vcita-playground.web.app?business_id=${vuser.data.business_id}&uid=${uid}`);
+        })
+        .catch(err => {
+          functions.logger.info({err:err.data}, {structuredData: true});
+          response.status(500).json(err)
+        })
+      }
+      catch (err) {
+        functions.logger.info({err:err}, {structuredData: true});
+        response.status(500).json(err)
+      }
+
+
+    } catch (err) {
+      functions.logger.info({loggedError: err}, {structuredData: true});
+      response.json(err)
+    }
+  }
 });
 
 export const users = functions.https.onRequest( async (request, response) => {
@@ -88,7 +124,7 @@ export const vcitaClientCreatedWebhook = functions.https.onRequest( async (reque
     query: request.query
   }, {structuredData: true});
   
-  let user = request.body.data;
+  const user = request.body.data;
   user['status'] = request.body.custom_fields_status;
   
   try {
@@ -101,3 +137,32 @@ export const vcitaClientCreatedWebhook = functions.https.onRequest( async (reque
     functions.logger.info({dbRes: err}, {structuredData: true})
   }
 });
+
+export const importVcitaClients = functions.https.onRequest(async (request, response) => {
+  const uid = request.query.uid?.toString();
+  if (uid) {
+    try {
+      const token = (await firestore.getUserByUid(uid)).data();
+    
+      // const config = {
+      //   method: 'GET',
+      //   url: 'https://api.vcita.biz/platform/v1/clients',
+      //   headers: {
+      //     'Content-Type':  'application/json',
+      //     Authorization: `Bearer ${token}`
+      //   }
+      // }
+    
+      // let clients = await axios(config);
+      response.json({token: token});
+    }
+    catch (err) {
+      functions.logger.info({dbRes: err}, {structuredData: true});
+      response.status(500).json({err: err});
+    }
+  } else {
+    response.status(500).json({err: 'missing uid param in request url'});
+
+  }
+})
+

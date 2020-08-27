@@ -9,3 +9,7 @@ body {
 .border-primary {
     border: 3px solid #40C4FF;
 }
+
+.mat-dialog-container {
+    padding: 0 !important;
+}

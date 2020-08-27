@@ -20,6 +20,7 @@ import { ApiPlaygroundComponent } from './views/api-playground/api-playground.co
 import { OauthComponent } from './views/oauth/oauth.component';
 import { NavigationComponent } from './views/navigation/navigation.component';
 import { ClientsComponent } from './views/clients/clients.component';
+import { SignInComponent } from './views/sign-in/sign-in.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { ClientsComponent } from './views/clients/clients.component';
     OauthComponent,
     ApiPlaygroundComponent,
     NavigationComponent,
-    ClientsComponent
+    ClientsComponent,
+    SignInComponent
   ],
   imports: [
     BrowserModule,

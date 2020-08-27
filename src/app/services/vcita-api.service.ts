@@ -75,17 +75,29 @@ export class VcitaApiService {
     return this.http.get('https://app.vcita.com/app/oauth/authorize', config)
   }
 
-  subscribeToWebhook(object, event, url) {
+  subscribeToWebhook(object, event, businessId) {
     let config = {
       headers: this.headers
     }
 
     const bodyParams = {
       event: `${object}/${event}`,
-      target_url: url
+      business_id: businessId
     }
 
     return this.http.post(`${this.domain}/platform/v1/webhook/subscribe`, bodyParams, config);
+  }
+
+  getDocuments(clientId, page='1', perPage='1') {
+    let config = {
+      headers: new HttpHeaders({
+        'Content-Type':  'application/json',
+        Authorization: `Bearer 656d7c290d6f0c949ca23ce76b4757b01390d8b3e5006270ae96c584c08f4c9b`
+      })
+    }
+
+    return this.http.get(`https://api.vcita.biz/platform/v1/clients/s813odv1fkkttdut/documents`, config);
+
   }
 
 }

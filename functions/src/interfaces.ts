@@ -1,6 +1,7 @@
 export interface IVcitaAuthorizeResponse {
     code: string;
-    state: string;
+    state?: string;
+    uid?: string;
 }
 
 export interface IVcitaTokenExchangeResponse {

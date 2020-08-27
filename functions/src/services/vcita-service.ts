@@ -1,22 +1,36 @@
-const axios = require('axios');
+import * as Axios from 'axios';
+const axios = Axios.default;
+type AxiosRequestConfig = Axios.AxiosRequestConfig;
 
-interface IClient {
-    first_name: string;
-    last_name: string;
-    email: string;
+
+export async function subscribeToVcitaWebhook(token:string, event:string) {
+      
+    const config: AxiosRequestConfig = {
+        method: 'POST',
+        url: 'https://api.vcita.biz/platform/v1/webhook/subscribe',
+        data: {
+            event: event,
+            target_url: 'https://us-central1-vcita-playground.cloudfunctions.net/vcitaClientCreatedWebhook'
+        },
+        headers: {
+            Authorization: `Bearer ${token}` 
+        }
+    }
+
+    return axios(config);
+        
 }
 
-export const createClient = (accessToken:string, client: IClient) => {
-    const config = {
-        method: 'POST',
+export async function importClients(token:string) {
+      
+    const config: AxiosRequestConfig = {
+        method: 'GET',
         url: 'https://api.vcita.biz/platform/v1/clients',
-        data: client,
         headers: {
-            accept: 'application/json',
-            authorization: `Bearer ${accessToken}`,
-            'content-type': 'application/json'
-          }
+            Authorization: `Bearer ${token}` 
+        }
     }
-    return axios(config)
-    
+
+    return axios(config);
+        
 }

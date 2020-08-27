@@ -1,5 +1,6 @@
+import { AuthService } from './auth.service';
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -8,19 +9,28 @@ import { Observable } from 'rxjs';
 export class FirestoreService {
 
   clients$: Observable<any[]>;
-  businessId = 'ua48ta14yoqqz3r3';
+  users: AngularFirestoreCollection<any[]>;
 
-  constructor(private firestore: AngularFirestore) {}
+  constructor(
+    private afs: AngularFirestore,
+    private auth: AuthService
+  ) {
+    this.users = afs.collection('users');
+  }
 
   // get clients(): any {
-  //   return this.firestore.collection('users').doc(this.businessId).collection('sub-users').valueChanges();
+  //   return this.afs.collection('users').doc(this.businessId).collection('sub-users').valueChanges();
   // }
   getClients() {
-    return this.firestore.collection('users').doc(this.businessId).collection('sub-users').valueChanges();
+    return this.users.doc(this.auth.uid).collection('clients').valueChanges();
   }
 
   addUser(uid) {
-    return this.firestore.collection('users').add(uid);
+    return this.users.doc(uid).set({uid: uid});
+  }
+
+  getUser(uid) {
+    return this.users.doc(this.auth.uid).get();
   }
 
 }

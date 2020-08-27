@@ -13,6 +13,7 @@ export class ApiPlaygroundComponent implements OnInit {
   clientsPage = 1;
   conversationsPage = 1;
   perPage = 10;
+  clientId = '96jvae8v2nn1c6oq';
 
   webhookObject = '';
   webhookEvent = '';
@@ -79,6 +80,10 @@ export class ApiPlaygroundComponent implements OnInit {
     this.webhookObject = '';
     this.webhookEvent = '';
     this.webhookUrl = '';
+  }
+
+  getDocuments(clientId = this.clientId) {
+    this.vcita.getDocuments(clientId).subscribe(res => {console.log(res) });
   }
 
 
