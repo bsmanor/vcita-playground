@@ -1,12 +1,13 @@
-<mat-card id="clients-container">
-    <mat-card-header>
-        <mat-card-title>My Clients</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="5px">
-        <div *ngFor="let client of clients$ | async">
-            <div>{{client.first_name}} {{client.last_name}}</div>
-            <mat-divider style="height:1px;"></mat-divider>
-        </div>  
-    </mat-card-content>
-</mat-card>
+<div style="width: inherit; height: inherit; padding: 20px 0;">
+    <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="10px grid" style="width: inherit; height: inherit;">
+        <div class="client-card" *ngFor="let client of clients$ | async; trackBy:trackByMethod">
+            <mat-card style="width: 130px; height: 100px;">
+                <mat-card-content fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="5px">
+                        <div><mat-icon color="accent">account_circle</mat-icon></div>
+                        <div>{{client.first_name}}</div>
+                        <div>{{client.last_name}}</div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

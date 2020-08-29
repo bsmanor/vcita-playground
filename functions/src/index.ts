@@ -66,9 +66,12 @@ export const authorize = functions.https.onRequest( async (request, response) =>
       // Add vcita user info to the user's account on firestore
       await db.collection('users').doc(uid).set({
         uid: uid,
-        vcita_business_id: vuser.data.business_id,
+        vcita_access: true,
+        business_id: vuser.data.business_id,
         vcita_token: token,
-        vcita_user: vuser.data
+        vcita_user: vuser.data,
+        vcita_client_added_webhook: false,
+        imported_vcita_clients: false
       });
 
       try {
@@ -76,17 +79,21 @@ export const authorize = functions.https.onRequest( async (request, response) =>
         // subscribe to client/created vcita webhook
         const isSubscribed = await vcita.subscribeToVcitaWebhook(token, 'client/created');
         functions.logger.info({subscribed:isSubscribed.data}, {structuredData: true});
+        // updating the user's account that client/added event are now synced
+        await db.collection('users').doc(uid).update({vcita_client_added_webhook: true})
         
         // Importing clients from vcita
         const clientsRes = await vcita.importClients(token);
         const clients = clientsRes.data.data.clients;
         functions.logger.info({clients:clients}, {structuredData: true});
-        
+        // updating the user's account that clients were imported from vcita
+        await db.collection('users').doc(uid).update({imported_vcita_clients: true})
+
         // Push clients to firestore
         firestore.createClients(uid, clients)
         .then( (values) => {          
           // Redirect the user to the app's home page
-          response.redirect(`https://vcita-playground.web.app?business_id=${vuser.data.business_id}&uid=${uid}`);
+          response.redirect(`https://vcita-playground.web.app/vcita-thank-you-page`);
         })
         .catch(err => {
           functions.logger.info({err:err.data}, {structuredData: true});
@@ -106,7 +113,7 @@ export const authorize = functions.https.onRequest( async (request, response) =>
   }
 });
 
-export const users = functions.https.onRequest( async (request, response) => {
+export const usersList = functions.https.onRequest( async (request, response) => {
   const usersRef = await db.collection('users').get();
   const usersArr: any[] = [];
   usersRef.forEach((element:any) => {
@@ -127,8 +134,15 @@ export const vcitaClientCreatedWebhook = functions.https.onRequest( async (reque
   const user = request.body.data;
   user['status'] = request.body.custom_fields_status;
   
+  const users: string[] = []; 
+  (await firestore.findUidByBusinessId(request.body.data.business_id)).forEach(userRef => { users.push(userRef.data().uid)})
+
+  functions.logger.info({usersRes: users}, {structuredData: true});
+  functions.logger.info({user0: users[0]}, {structuredData: true});
+
   try {
-    const dbRes = await db.collection('users').doc(request.body.data.business_id).collection('sub-users').doc(user.client_id).set(user);
+    const dbRes = await db.collection('users').doc(users[0]).collection('clients').doc(user.client_id).set(user);
+    functions.logger.info({dbRes: dbRes}, {structuredData: true});
     functions.logger.info({dbRes: dbRes}, {structuredData: true});
     response.json({
       user: user
@@ -143,17 +157,6 @@ export const importVcitaClients = functions.https.onRequest(async (request, resp
   if (uid) {
     try {
       const token = (await firestore.getUserByUid(uid)).data();
-    
-      // const config = {
-      //   method: 'GET',
-      //   url: 'https://api.vcita.biz/platform/v1/clients',
-      //   headers: {
-      //     'Content-Type':  'application/json',
-      //     Authorization: `Bearer ${token}`
-      //   }
-      // }
-    
-      // let clients = await axios(config);
       response.json({token: token});
     }
     catch (err) {

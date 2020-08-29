@@ -1,3 +1,4 @@
+import { IUser } from './../interfaces';
 import { AuthService } from './auth.service';
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
@@ -12,17 +13,13 @@ export class FirestoreService {
   users: AngularFirestoreCollection<any[]>;
 
   constructor(
-    private afs: AngularFirestore,
-    private auth: AuthService
+    private afs: AngularFirestore
   ) {
-    this.users = afs.collection('users');
+    this.users = this.afs.collection('users');
   }
 
-  // get clients(): any {
-  //   return this.afs.collection('users').doc(this.businessId).collection('sub-users').valueChanges();
-  // }
-  getClients() {
-    return this.users.doc(this.auth.uid).collection('clients').valueChanges();
+  getClients(uid) {
+      return this.users.doc(uid).collection('clients').valueChanges();
   }
 
   addUser(uid) {
@@ -30,7 +27,11 @@ export class FirestoreService {
   }
 
   getUser(uid) {
-    return this.users.doc(this.auth.uid).get();
+      return this.users.doc(uid).valueChanges();
+  }
+
+  unsyncVcita(uid) {
+    return this.users.doc(uid).update({vcita_access: false});
   }
 
 }

@@ -35,6 +35,7 @@ export class SignInComponent implements OnInit {
         this.auth.signInWithEmailAndPassword(email, password)
         .then(res => { 
           this.auth.uid = res.user.uid;
+          this.auth.authenticateUser();
           this.router.navigate(['/oauth']);
         })
         .catch(err => { console.log(err) })

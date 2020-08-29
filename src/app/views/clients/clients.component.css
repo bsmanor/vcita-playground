@@ -3,5 +3,17 @@
     width: inherit;
     overflow-y: auto;
     padding: 14px;
-    
 }
+
+.client-card {
+    animation: card-enter 3s ease-in;
+}
+
+@keyframes card-enter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+  }

@@ -1,5 +1,7 @@
+import { IUser } from './../interfaces';
+import { FirestoreService } from './firestore.service';
 import { User } from './../classes';
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { auth } from 'firebase/app';
@@ -8,25 +10,25 @@ import { AngularFirestore, AngularFirestoreDocument, AngularFirestoreCollection 
 import { Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-interface IUser {
-  uid: string;
-  businessId: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
   private _user: IUser;
-
+  userData: any; // User data var
+  user$: Observable<IUser>;
   
   constructor(
     private afAuth: AngularFireAuth,
     private afs: AngularFirestore,
-    private router: Router
-  ) {
+    private router: Router,
+    public ngZone: NgZone, // NgZone service to remove outside scope warning
+    ) 
+  {
     this._user = new User();
+    this.authenticateUser();
+
   }
     
   set uid (uid: string) {
@@ -34,7 +36,7 @@ export class AuthService {
   }
 
   set businessId (businessId: string) {
-    this._user.businessId = businessId;
+    this._user.business_id = businessId;
   }
   
   get user (): IUser {
@@ -44,7 +46,26 @@ export class AuthService {
     return this._user.uid;
   }
   get businessId (): string {
-    return this._user.businessId;
+    return this._user.business_id;
+  }
+
+  authenticateUser() {
+    // Saving user data as an object in localstorage if logged out than set to null 
+    this.afAuth.authState.subscribe(user => {
+      
+      if (user) {
+        this.userData = user; // Setting up user data in userData var
+        localStorage.setItem('user', JSON.stringify(this.userData));
+        JSON.parse(localStorage.getItem('user'));
+        this._user.uid = JSON.parse(localStorage.getItem('user')).uid;
+        return this.uid;
+        
+      } else {
+        localStorage.setItem('user', null);
+        JSON.parse(localStorage.getItem('user'));
+        return false;
+      }
+    })
   }
 
   createUser(email, password) {
@@ -54,5 +75,14 @@ export class AuthService {
   signInWithEmailAndPassword(email, password) {
     return this.afAuth.signInWithEmailAndPassword(email, password);
   }
+
+  // Sign out 
+  SignOut() {
+    return this.afAuth.signOut().then(() => {
+      localStorage.removeItem('user');
+      this.router.navigate(['sign-in']);
+    })
+  }
+
 
 }

@@ -11,6 +11,10 @@ export class ClientsComponent implements OnInit {
 
   constructor() { }
 
+  trackByMethod(index:number, el:any): number {
+    return el.id;
+  }
+
   ngOnInit(): void {
   }
 

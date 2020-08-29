@@ -1,9 +1,10 @@
-#vcita-sync-button {
-    position: absolute;
+.vcita-sync-button {
+    position: fixed;
     right: 0px;
     bottom: 30px;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
+    z-index: 1000;
 }
 
 #about-info {

@@ -1,3 +1,5 @@
+import { IUser } from './../../interfaces';
+import { Observable } from 'rxjs';
 import { AuthService } from './../../services/auth.service';
 import { ClientsComponent } from './../clients/clients.component';
 import { FirestoreService } from './../../services/firestore.service';
@@ -24,21 +26,25 @@ export class OauthComponent implements OnInit {
     private router: Router
   ) {}
 
+  clients$: Observable<any>;
   uri = `https://us-central1-vcita-playground.cloudfunctions.net/authorize`;
   OAuthUrl = `https://app.vcita.com/app/oauth/authorize?client_id=53c0ab7c3eb6b5aefcfc3f657f539849cb18e9f9e6c76ffffef743db4c137a1a&redirect_uri=${this.uri}&state=${this.auth.user.uid}`;
 
-  clients$ = this.firestore.getClients();
-  user: {};
-  openDialog() {
+  user: Observable<IUser>;
+  openSyncDialog() {
     this.dialog.open(vcitaDialog, {
       data: {
         uid: this.auth.uid
       },
-      width:'1700px',
-      height: '800px'
+      width:'1600px',
+      height: '700px'
     })
   }
 
+  unsyncVcita() {
+    this.firestore.unsyncVcita(this.auth.uid);
+  }
+  
   webhooks = [
     {
       client: [
@@ -102,22 +108,32 @@ export class OauthComponent implements OnInit {
       ]
     }
   ]
-
+  
   ngOnInit(): void {
     console.log(this.auth.uid);
     
-    if (this.auth.uid !== null && this.auth.uid !== undefined) {
-      this.firestore.getUser(this.auth.uid)
-      .subscribe(user => {
-        console.log(user)
-        this.user = user;
-        this.openDialog();
-      },
-      err => {
-        console.log(err);
-      })
-    } else {
-      this.router.navigate(['/sign-in'])
+    if (this.auth.uid === null || this.auth.uid === undefined) {
+      this.router.navigate(['sign-in'])
+    } 
+    else {
+      try {
+        this.clients$ = this.firestore.getClients(this.auth.uid);
+        this.user = this.firestore.getUser(this.auth.uid)
+        this.firestore.getUser(this.auth.uid)
+        .subscribe((user: IUser) => {
+          console.log(user)
+          if (!user.vcita_access) {
+            this.openSyncDialog();
+          }
+
+        },
+        err => {
+          console.log(err);
+        }).unsubscribe();
+      }
+      catch (err) {
+        this.router.navigate(['sign-in'])
+      }
     }
   }
 
@@ -144,8 +160,7 @@ export class vcitaDialog implements OnInit {
   }
 
 
-  ngOnInit() {
-
+  ngOnInit() {    
   }
 
 }

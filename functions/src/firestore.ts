@@ -17,3 +17,8 @@ export function createClients(uid: string, clients: any[]) {
   return Promise.all(clientsPromList);
 
 }
+
+export async function findUidByBusinessId(businessId: string): Promise<FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>> {
+  return await db.collection('users').where('business_id', '==', businessId).get();
+  
+}

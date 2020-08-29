@@ -7,6 +7,7 @@
       <div>
         <a mat-button [routerLink]="'/oauth'"> OAuth </a>
         <a mat-button [routerLink]="'/api-playground'"> API Playground </a>
+        <a mat-button (click)="signOut()"> Sign Out </a>
       </div>
     </mat-toolbar-row>
   </mat-toolbar>

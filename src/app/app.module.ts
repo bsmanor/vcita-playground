@@ -21,6 +21,7 @@ import { OauthComponent } from './views/oauth/oauth.component';
 import { NavigationComponent } from './views/navigation/navigation.component';
 import { ClientsComponent } from './views/clients/clients.component';
 import { SignInComponent } from './views/sign-in/sign-in.component';
+import { VcitaThankYouPageComponent } from './views/vcita-thank-you-page/vcita-thank-you-page.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +30,8 @@ import { SignInComponent } from './views/sign-in/sign-in.component';
     ApiPlaygroundComponent,
     NavigationComponent,
     ClientsComponent,
-    SignInComponent
+    SignInComponent,
+    VcitaThankYouPageComponent
   ],
   imports: [
     BrowserModule,
